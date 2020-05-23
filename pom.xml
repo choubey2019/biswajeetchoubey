@@ -22,6 +22,27 @@
 
 	<dependencies>
 
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<dependency> 
+			<groupId>org.springframework.boot</groupId> 
+			<artifactId>spring-boot-starter-security</artifactId> 
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>			
+		</dependency>
+
+		<!-- JSON WEB TOKEN -->
+		<dependency>
+    		<groupId>io.jsonwebtoken</groupId>
+    		<artifactId>jjwt</artifactId>
+    		<version>0.9.1</version>
+		</dependency>
 
 		<!-- exclude logback , add log4j2 -->
         <dependency>
@@ -34,31 +55,9 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>			
-		</dependency>
-
-		<!-- 
-		<dependency> 
-			<groupId>org.springframework.boot</groupId> 
-			<artifactId>spring-boot-starter-security</artifactId> 
-		</dependency>
-         -->
+       
         
-        <dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-        
-        <!-- 
-        <dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-thymeleaf</artifactId>
-		</dependency>
-         -->
-        <!-- Open following Archieve if you want to deploy your app as war -->
+         <!-- Open following Archieve if you want to deploy your app as war -->
         <!--  
         <dependency>
 		 	<groupId>org.springframework.boot</groupId>
@@ -118,6 +117,18 @@
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		
+		<dependency>
+    		<groupId>org.junit.jupiter</groupId>
+   			 <artifactId>junit-jupiter-api</artifactId>
+   			 <version>5.0.0-M5</version>
+    		 <scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 			<exclusions>
@@ -126,13 +137,6 @@
 					<artifactId>junit-vintage-engine</artifactId>
 				</exclusion>
 			</exclusions>
-		</dependency>
-
-		<dependency>
-    		<groupId>org.junit.jupiter</groupId>
-   			 <artifactId>junit-jupiter-api</artifactId>
-   			 <version>5.0.0-M5</version>
-    		<scope>test</scope>
 		</dependency>
 
 		<dependency>

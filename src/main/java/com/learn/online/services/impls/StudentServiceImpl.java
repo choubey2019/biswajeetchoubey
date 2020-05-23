@@ -10,16 +10,24 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.learn.online.beans.CourseEntity;
 import com.learn.online.beans.CourseOrderEntity;
 import com.learn.online.beans.StudentEntity;
 import com.learn.online.daos.CourseEntityDao;
+import com.learn.online.daos.RoleEntityDao;
 import com.learn.online.daos.StudentEntityDao;
 import com.learn.online.dtos.StudentDto;
 import com.learn.online.enums.ErrorMessagesEnum;
+import com.learn.online.exceptions.CourseNotFoundtException;
 import com.learn.online.exceptions.StudentServiceException;
+import com.learn.online.securities.UserPrincipal;
 import com.learn.online.services.StudentService;
 import com.learn.online.utils.CustomUtils;
 
@@ -34,7 +42,14 @@ public class StudentServiceImpl implements StudentService {
 	@Autowired
 	private CourseEntityDao courseEntityDao;
 	
+	@Autowired
+	BCryptPasswordEncoder bCryptPasswordEncoder;
+	
+	@Autowired
+	private RoleEntityDao roleEntityDao;
+	
 	@Override
+	@Transactional
 	public StudentDto findByEmail(String email) {
 		
 		LOGGER.info("StudentServiceImpl::findByEmail() Started");
@@ -70,10 +85,11 @@ public class StudentServiceImpl implements StudentService {
 		LOGGER.info("StudentServiceImpl::signupStudent() Completed");
 				
 		return CustomUtils.convertToStudentDto(studentEntityDao.save(
-				CustomUtils.convertToStudentEntity(studentDto)));
+				CustomUtils.convertToStudentEntity(studentDto, bCryptPasswordEncoder, roleEntityDao)));
 	}
 
 	
+	@Transactional
 	@Override
 	public StudentDto updateStudent(StudentDto studentDto) {
 		
@@ -87,8 +103,8 @@ public class StudentServiceImpl implements StudentService {
 				.orElseThrow(()-> new StudentServiceException(
 					ErrorMessagesEnum.REQUESTED_STUDENT_NOT_FOUND.getMessage()));
 		
-		
-		studentEntityDao.saveAndFlush(CustomUtils.loadStudentEntityForUpdate(studentDto, studentEntity));
+		studentEntityDao.saveAndFlush(CustomUtils.loadStudentEntityForUpdate(studentDto, studentEntity, 
+				bCryptPasswordEncoder, (UserPrincipal)SecurityContextHolder.getContext().getAuthentication().getPrincipal()));
 		LOGGER.info("Student detailed updated successfully");
 		
 		LOGGER.info("StudentServiceImpl::signupStudent() Completed");
@@ -112,7 +128,7 @@ public class StudentServiceImpl implements StudentService {
 		LOGGER.info("Fetching courses details by courses key");
 		
 		List<CourseEntity> courseEntityList = courseEntityDao.findCoursesByKey(courseKeys)
-				.orElseThrow(()-> new StudentServiceException(
+				.orElseThrow(()-> new CourseNotFoundtException(
 					ErrorMessagesEnum.REQUESTED_COURSES_NOT_FOUND_FOR_PURCHASE.getMessage()));
 	
 		LOGGER.info("Student details and courses are found. Now purchasing courses for students");
@@ -238,5 +254,36 @@ public class StudentServiceImpl implements StudentService {
 		
 		return CustomUtils.convertToStudentDto(studentEntity);
 		
-	}	
+	}
+
+	@Override
+	@Transactional
+	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+		
+		StudentEntity studentEntity = studentEntityDao.findByEmail(email)
+				.orElseThrow(()-> new UsernameNotFoundException(email));
+		
+		studentEntity.getCourseOrders().size();
+		studentEntity.getRoles().size();
+		
+		studentEntity.getRoles().forEach(role->{
+			role.getStudentEntities().size();
+			
+			role.getAuthorities().size();
+			
+			role.getAuthorities().forEach(authority->{
+				authority.getRoleEntities().size();
+			});	
+		});
+		
+		
+		return new UserPrincipal(studentEntity);
+		
+		/*
+		return new User(studentEntity.getEmail(), studentEntity.getEncryptedPassword(), 
+					true, true, true, true, new ArrayList<>());
+		*/
+	}
+	
+	
 }
